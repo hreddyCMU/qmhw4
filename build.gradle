@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'jacoco'
+    id 'info.solidsoft.pitest' version '1.7.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
+    // Add easymock to our depenencies
+    testImplementation ('org.easymock:easymock:3.2')
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'org.ow2.asm:asm:7.2'
+        forcedModules = [ 'org.ow2.asm:asm:7.2' ]
+    }
+}
+
+pitest {
+    targetClasses = ['edu.cmu.cs.cs323.scrabble.core.board.Board']
+    junit5PluginVersion = '0.12'
+    targetTests = [
+      'edu.cmu.cs.cs323.scrabble.core.board.BlackboxTests',
+      'edu.cmu.cs.cs323.scrabble.core.board.WhiteboxTests'
+    ]
+    outputFormats = ['XML', 'HTML']
+    timestampedReports = true
+}
+
+// Add better indications that the tests work
+tasks.withType(Test) { 
+  testLogging {
+    exceptionFormat "full"
+    events "started", "skipped", "passed", "failed"
+    showStandardStreams true
+  }
+}
